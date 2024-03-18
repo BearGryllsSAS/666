@@ -19,7 +19,7 @@
 locker m_lock;
 map<string, pair<string, string> > users;  //通过id映射用户名和密码
 vector<int> onlineUsers;    //记录在线用户，存放的是cfd
-set<int> onlineUsersId;   //记录在线用户，存放的是用户id。方便login函数判断
+set<string> onlineUsersId;   //记录在线用户，存放的是用户id。方便login函数判断
 
 int chat_conn::m_user_count = 0;
 int chat_conn::m_epollfd = -1;
