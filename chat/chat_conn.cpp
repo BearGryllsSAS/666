@@ -185,6 +185,8 @@ void chat_conn::init()
     timer_flag = 0;
     improv = 0;
 
+    cb_fun = 0;
+
     memset(this->buf, '\0', BUFFER_SIZE);
 }
 
