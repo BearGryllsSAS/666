@@ -334,7 +334,7 @@ void chat_conn::login()
 
         if(temp == users[id].second)
         {
-            strcpy(this->usr_name, users[id].first);  //数据库中还是得记录用户名，并且初始化的时候还是得把用户名读出来
+            strcpy(this->usr_name, users[id].first.c_str());  //数据库中还是得记录用户名，并且初始化的时候还是得把用户名读出来
 
             // list_push(cfd);                                 // 将当前的cfd添加进在线列表中
             onlineUsers.emplace_back(this->fd);         
