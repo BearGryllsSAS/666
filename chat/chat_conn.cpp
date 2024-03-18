@@ -548,5 +548,15 @@ void chat_conn::process()
     */
 
     // 调用回调函数
-    this->fun();
+    // this->fun();
+    
+    switch(this->cb_fun)
+    {
+        case 0:
+            login_menu();
+            break;
+        
+
+
+    }
 }
