@@ -553,8 +553,12 @@ void chat_conn::process()
     switch(this->cb_fun)
     {
         case 0:
+        {
             login_menu();
             break;
+        }
+        
+            
         
 
 
