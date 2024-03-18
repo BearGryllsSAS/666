@@ -29,6 +29,8 @@
 class chat_conn
 {
 public:
+    int cb_fun;
+public:
     static const char ms1[];
 
 public:
