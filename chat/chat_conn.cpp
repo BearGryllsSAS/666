@@ -557,10 +557,9 @@ void chat_conn::process()
             login_menu();
             break;
         }
-        
-            
-        
-
-
+        default:
+            break;
     }
+
+    return;
 }
