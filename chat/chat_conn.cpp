@@ -141,7 +141,7 @@ void chat_conn::init(int sockfd, const sockaddr_in &addr, char *root, int TRIGMo
 
     // 设置回调函数 --- 登录界面
     // fun = login_menu;
-    this->fun = std::bind(&chat_conn::login_menu, this);
+    // this->fun = std::bind(&chat_conn::login_menu, this);
 
     this->fd = sockfd;
 
