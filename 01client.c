@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
     int cfd = socket(AF_INET,SOCK_STREAM, 0);
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(7777);
-    inet_pton(AF_INET, "8.135.81.187", &server_addr.sin_addr.s_addr);
+    server_addr.sin_port = htons(9006);
+    inet_pton(AF_INET, "8.138.96.21", &server_addr.sin_addr.s_addr);
     int ret = connect(cfd, (struct sockaddr*)&server_addr,sizeof server_addr);
     if(ret == -1 ) sys_error("connet error");
 

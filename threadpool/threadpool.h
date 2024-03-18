@@ -140,7 +140,7 @@ void threadpool<T>::run()
             }
             else
             {
-                if (request->write())
+                if (request->len > 0)
                 {
                     request->improv = 1;
                 }

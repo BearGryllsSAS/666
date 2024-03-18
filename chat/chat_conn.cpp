@@ -1,5 +1,5 @@
 #include "chat_conn.h"
-#include "../server.h"
+#include "../Server.h"
 
 #include <algorithm>
 #include <vector>
@@ -8,13 +8,17 @@
 #include <fstream>
 #include <iostream>
 
-//329 331 337 475 499
-
 //服务器读取缓冲区的数据的判断统一在外面进行处理，因为是在外面读的。并且要根据客户端的状态进行相应的处理。
 
 //对公共数据的某些操作忘记加锁了，后面再加上
 
 //服务器发送数据的len的判断也是在外面进行处理。同上
+
+const char chat_conn::ms1[] = "与服务器建立连接, 开始进行数据通信 ------ [OK]\n"
+             "          epoll服务器聊天室测试版          \n"
+             "    (1)匿名聊天   (2)登陆   (3) 注册        \n"
+             "========>";
+
 
 locker m_lock;
 map<string, pair<string, string> > users;  //通过id映射用户名和密码
@@ -33,7 +37,7 @@ void chat_conn::initmysql_result(connection_pool *connPool)
 
     //在user表中检索username，passwd数据，浏览器端输入
     //到时候改成user_id passeword
-    if (mysql_query(mysql, "SELECT username,passwd FROM user"))
+    if (mysql_query(mysql, "SELECT usr_id, usr_name, usr_password FROM user"))
     {
         LOG_ERROR("SELECT error:%s\n", mysql_error(mysql));
     }
@@ -139,6 +143,8 @@ void chat_conn::init(int sockfd, const sockaddr_in &addr, char *root, int TRIGMo
     // fun = login_menu;
     this->fun = std::bind(&chat_conn::login_menu, this);
 
+    this->fd = sockfd;
+
     // 添加监听事件
     addfd(m_epollfd, sockfd, true, m_TRIGMode);    //这里有点问题？？？最后一个参数还初始化呢
     m_user_count++;
@@ -157,6 +163,7 @@ void chat_conn::init(int sockfd, const sockaddr_in &addr, char *root, int TRIGMo
 
 
     // 发送信息提示用户
+    
     write(this->fd, ms1, sizeof ms1);
 }
 
@@ -265,6 +272,9 @@ void chat_conn::login_menu()
         // event_add(g_efd, ev);
 
         // this->fun = cb_write;
+
+        cout << "============================================1" << endl;
+
         this->fun = std::bind(&chat_conn::cb_write, this);
         modfd(chat_conn::m_epollfd, this->fd, EPOLLOUT, this->m_TRIGMode);
     }
@@ -315,7 +325,7 @@ void chat_conn::login()
             write(this->fd, s, strlen(s));
             return;
         }
-        if(onlineUsersId.find(id) != onlineUsersId.end())                      
+        if(onlineUsersId.find(to_string(id)) != onlineUsersId.end())                      
         {
             sprintf(s, "!用户UID:%s 已登陆\n请重新输入账号UID:", this->buf);
             write(this->fd, s, strlen(s));
@@ -332,9 +342,9 @@ void chat_conn::login()
         
         string temp(this->buf);
 
-        if(temp == users[id].second)
+        if(temp == users[to_string(id)].second)
         {
-            strcpy(this->usr_name, users[id].first.c_str());  //数据库中还是得记录用户名，并且初始化的时候还是得把用户名读出来
+            strcpy(this->usr_name, users[to_string(id)].first.c_str());  //数据库中还是得记录用户名，并且初始化的时候还是得把用户名读出来
 
             // list_push(cfd);                                 // 将当前的cfd添加进在线列表中
             onlineUsers.emplace_back(this->fd);         
@@ -445,7 +455,9 @@ void chat_conn::get_uid()
 
 // 写事件 ---> 向当前在线用户发送信息
 void chat_conn::cb_write()
-{
+{   
+    cout << "===================================2" << endl;
+
     for(const auto& onlinefd : onlineUsers)             // 遍历当前的在线链表, 向在线用户发送
     {
         if(onlinefd == this->fd) continue;           // 发送数据给服务器的客户端一方并不需要发送
@@ -478,7 +490,8 @@ void chat_conn::cb_read()
     
     //将来这一步要录入日志文件中
     sprintf(str2, "from client fd: %d receive data is :", this->fd);
-    if(ret > 0)  write(STDOUT_FILENO, str2, strlen(str2));
+    // if(ret > 0)  write(STDOUT_FILENO, str2, strlen(str2));
+    write(STDOUT_FILENO, str2, strlen(str2));
     write(STDOUT_FILENO, str, strlen(str));    // 将客户端发来的数据在服务器端进行打印
 
     sprintf(this->buf, "(%s):%s\n>>>", this->usr_name, str);   // 格式化客户端发来的数据 --- 数据处理

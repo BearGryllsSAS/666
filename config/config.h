@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "../server.h"
+#include "../Server.h"
 
 using namespace std;
 

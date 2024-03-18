@@ -8,6 +8,8 @@
 #include <iostream>
 #include "sql_connection_pool.h"
 
+#include <iostream>
+
 using namespace std;
 
 connection_pool::connection_pool()
@@ -38,6 +40,9 @@ void connection_pool::init(string url, string User, string PassWord, string DBNa
 		con = mysql_init(con);
 		if (con == NULL)
 		{
+
+			cout << "======================================1" << endl;
+
 			LOG_ERROR("MySQL Error");
 			exit(1);
 		}
@@ -45,6 +50,9 @@ void connection_pool::init(string url, string User, string PassWord, string DBNa
 		con = mysql_real_connect(con, url.c_str(), User.c_str(), PassWord.c_str(), DBName.c_str(), Port, NULL, 0);
 		if (con == NULL)
 		{
+
+			cout << "======================================1" << endl;
+
 			LOG_ERROR("MySQL Error");
 			exit(1);
 		}

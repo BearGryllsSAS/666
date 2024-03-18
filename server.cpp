@@ -80,7 +80,7 @@ void Server::sql_pool()
 {
     // 初始化数据库连接池
     m_connPool = connection_pool::GetInstance();
-    m_connPool->init("localhost", m_user, m_passWord, m_databaseName, 3306, m_sql_num, m_close_log);
+    m_connPool->init("8.138.96.21", m_user, m_passWord, m_databaseName, 3306, m_sql_num, m_close_log);
 
     // 初始化数据库读取表
     users->initmysql_result(m_connPool);
@@ -132,7 +132,7 @@ void Server::eventListen()
     assert(m_epollfd != -1);
 
     utils.addfd(m_epollfd, m_listenfd, false, m_LISTENTrigmode);
-    http_conn::m_epollfd = m_epollfd;
+    chat_conn::m_epollfd = m_epollfd;
 
     ret = socketpair(PF_UNIX, SOCK_STREAM, 0, m_pipefd);
     assert(ret != -1);
@@ -150,7 +150,7 @@ void Server::eventListen()
     Utils::u_epollfd = m_epollfd;
 }
 
-void server::timer(int connifd, struct sockaddr_in client_address)
+void Server::timer(int connfd, struct sockaddr_in client_address)
 {
     //init内部要设置回调函数
 
@@ -180,7 +180,7 @@ void Server::adjust_timer(util_timer *timer)
     LOG_INFO("%s", "adjust timer once");
 }
 
-void server::deal_timer(util_timer *timer, int sockifd)
+void Server::deal_timer(util_timer *timer, int sockfd)
 {
     //这个函数内部要根据相应的回调函数进行错误处理
     if(users[sockfd].log_step == 3) users[sockfd].logout();
@@ -206,7 +206,7 @@ bool Server::dealclientdata()
             LOG_ERROR("%s:errno is:%d", "accept error", errno);
             return false;
         }
-        if (http_conn::m_user_count >= MAX_FD)
+        if (chat_conn::m_user_count >= MAX_FD)
         {
             utils.show_error(connfd, "Internal Server busy");
             LOG_ERROR("%s", "Internal Server busy");
@@ -225,7 +225,7 @@ bool Server::dealclientdata()
                 LOG_ERROR("%s:errno is:%d", "accept error", errno);
                 break;
             }
-            if (http_conn::m_user_count >= MAX_FD)
+            if (chat_conn::m_user_count >= MAX_FD)
             {
                 utils.show_error(connfd, "Internal Server busy");
                 LOG_ERROR("%s", "Internal Server busy");
@@ -274,7 +274,7 @@ bool Server::dealwithsignal(bool &timeout, bool &stop_Server)
     return true;
 }
 
-void server::dealwithread(int sockifd)
+void Server::dealwithread(int sockfd)
 {
     util_timer *timer = users_timer[sockfd].timer;
 
@@ -325,7 +325,7 @@ void server::dealwithread(int sockifd)
     }
 }
 
-void server::dealwithwrite(int sockifd)
+void Server::dealwithwrite(int sockfd)
 {
     util_timer *timer = users_timer[sockfd].timer;
     // reactor
@@ -355,7 +355,7 @@ void server::dealwithwrite(int sockifd)
     else
     {
         // proactor
-        if (users[sockfd].write())
+        if (users[sockfd].len > 0)
         {
             LOG_INFO("send data to the client(%s)", inet_ntoa(users[sockfd].get_address()->sin_addr));
 
@@ -374,9 +374,9 @@ void server::dealwithwrite(int sockifd)
 void Server::eventLoop()
 {
     bool timeout = false;
-    bool stop_server = ifalse;
+    bool stop_server = false;
 
-    while (!stop_Server)
+    while (!stop_server)
     {
         int number = epoll_wait(m_epollfd, events, MAX_EVENT_NUMBER, -1);
         if (number < 0 && errno != EINTR)
@@ -405,7 +405,7 @@ void Server::eventLoop()
             // 处理信号
             else if ((sockfd == m_pipefd[0]) && (events[i].events & EPOLLIN))
             {
-                bool flag = dealwithsignal(timeout, stop_Server);
+                bool flag = dealwithsignal(timeout, stop_server);
                 if (false == flag)
                     LOG_ERROR("%s", "dealclientdata failure");
             }

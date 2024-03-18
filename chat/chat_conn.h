@@ -29,13 +29,11 @@
 
 // typedef void (*call_back)(); 
 
-char ms1[] = "与服务器建立连接, 开始进行数据通信 ------ [OK]\n"
-             "          epoll服务器聊天室测试版          \n"
-             "    (1)匿名聊天   (2)登陆   (3) 注册        \n"
-             "========>";
-
 class chat_conn
 {
+public:
+    static const char ms1[];
+
 public:
     typedef std::function<void()> call_back;
 
