@@ -83,7 +83,7 @@ private:
 public:
     int fd;                     // 监听的文件描述符
     int events;                 // 对应监听的事件 EPOLLIN / EPOLLOUT
-    call_back fun;              // 回调函数
+    // call_back fun;              // 回调函数
     void *arg;                  // 上面回调函数的参3
     int status;                 // 是否在监听红黑树上, 1 --- 在, 0 --- 不在
     char buf[BUFFER_SIZE];           // 读写缓冲区
