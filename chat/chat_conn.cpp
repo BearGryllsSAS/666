@@ -328,8 +328,11 @@ void chat_conn::login()
     else if(2 == this->log_step)  // 输入用户密码
     {
         int id = atoi(this->usr_id);
-        strcpy(this->usr_key, buf);
-        if(!strcmp(this->buf, users[id].second))
+        strcpy(this->usr_key, this->buf);
+        
+        string temp(this->buf);
+
+        if(temp == users[id].second)
         {
             strcpy(this->usr_name, users[id].first);  //数据库中还是得记录用户名，并且初始化的时候还是得把用户名读出来
 
